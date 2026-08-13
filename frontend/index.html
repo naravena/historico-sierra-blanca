@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portal de Informes — Histórico del Hogar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">⏻</span>
+      <div>
+        <div class="brand-title">Histórico</div>
+        <div class="brand-sub">del hogar</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item is-active" data-view="crear">Crear informe</button>
+      <button class="nav-item" data-view="coste">Informe de coste</button>
+      <button class="nav-item" data-view="guardados">Informes guardados</button>
+      <button class="nav-item" data-view="sensores">Catálogo de sensores</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="dot-live"></span> Conectado a Supabase
+    </div>
+    <button id="btn-logout" class="btn-secondary logout-btn">Cerrar sesión</button>
+  </aside>
+
+  <main class="main">
+
+    <!-- Vista: crear informe -->
+    <section id="view-crear" class="view is-active">
+      <header class="view-header">
+        <h1>Crear informe</h1>
+        <p>Selecciona dispositivos y un rango de fechas para generar las estadísticas.</p>
+      </header>
+
+      <div class="panel">
+        <div class="field">
+          <label for="report-name">Nombre del informe</label>
+          <input type="text" id="report-name" placeholder="Ej. Consumo energético — julio 2026" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="fecha-desde">Desde</label>
+            <input type="date" id="fecha-desde" />
+          </div>
+          <div class="field">
+            <label for="fecha-hasta">Hasta</label>
+            <input type="date" id="fecha-hasta" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Dispositivos</label>
+          <div class="category-tabs" id="category-tabs">
+            <button class="tab is-active" data-categoria="">Todos</button>
+            <button class="tab" data-categoria="energia">Energía</button>
+            <button class="tab" data-categoria="clima">Clima</button>
+            <button class="tab" data-categoria="infraestructura">Infraestructura</button>
+          </div>
+          <div id="sensor-selector" class="sensor-grid">
+            <p class="muted">Cargando catálogo…</p>
+          </div>
+        </div>
+
+        <button id="btn-generar" class="btn-primary">Generar informe</button>
+      </div>
+
+      <div id="resultado-informe"></div>
+    </section>
+
+    <!-- Vista: informe de coste -->
+    <section id="view-coste" class="view">
+      <header class="view-header">
+        <h1>Informe de coste</h1>
+        <p>Estima cuánto deberías pagar según tu tarifa (2.0TD, Repsol) y tu consumo real registrado — y compáralo con tu factura.</p>
+      </header>
+
+      <div class="panel">
+        <div class="field-row">
+          <div class="field">
+            <label for="coste-desde">Desde</label>
+            <input type="date" id="coste-desde" />
+          </div>
+          <div class="field">
+            <label for="coste-hasta">Hasta</label>
+            <input type="date" id="coste-hasta" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="coste-importe-real">Importe real de tu factura (€) — opcional, para comparar</label>
+          <input type="text" id="coste-importe-real" placeholder="Ej. 39.34" />
+        </div>
+        <button id="btn-calcular-coste" class="btn-primary">Calcular</button>
+      </div>
+
+      <div id="resultado-coste"></div>
+    </section>
+
+    <!-- Vista: informes guardados -->
+    <section id="view-guardados" class="view">
+      <header class="view-header">
+        <h1>Informes guardados</h1>
+        <p>Vuelve a consultar informes que ya has creado — los datos se recalculan al abrirlos.</p>
+      </header>
+      <div id="lista-informes" class="report-list"></div>
+    </section>
+
+    <!-- Vista: catálogo de sensores -->
+    <section id="view-sensores" class="view">
+      <header class="view-header">
+        <h1>Catálogo de sensores</h1>
+        <p>Los 18 dispositivos definidos en la Fase 1, con su categoría y prioridad.</p>
+      </header>
+      <div id="tabla-sensores"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

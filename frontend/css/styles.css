@@ -1,0 +1,203 @@
+/* ---- Tokens ---- */
+:root {
+  --bg: #14171c;
+  --surface: #1b1f26;
+  --surface-2: #232833;
+  --border: #2e3440;
+  --text: #e8e6df;
+  --text-muted: #8b8f98;
+
+  --energia: #e0a458;      /* cobre / latón - contador eléctrico */
+  --energia-dim: #e0a45822;
+  --clima: #5b9aa8;        /* azul-verdoso frío */
+  --clima-dim: #5b9aa822;
+  --infra: #9084d6;        /* violeta - sistemas */
+  --infra-dim: #9084d622;
+
+  --danger: #d16565;
+
+  --font-display: "Big Shoulders Display", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Layout ---- */
+.app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; padding: 0 8px; }
+.brand-mark {
+  font-size: 22px; color: var(--energia);
+  filter: drop-shadow(0 0 6px var(--energia-dim));
+}
+.brand-title { font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1; letter-spacing: 0.02em; }
+.brand-sub { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+.nav { display: flex; flex-direction: column; gap: 4px; }
+.nav-item {
+  text-align: left;
+  background: none; border: none; color: var(--text-muted);
+  font-family: var(--font-body); font-size: 14px; font-weight: 500;
+  padding: 10px 12px; border-radius: var(--radius); cursor: pointer;
+}
+.nav-item:hover { background: var(--surface-2); color: var(--text); }
+.nav-item.is-active { background: var(--energia-dim); color: var(--energia); }
+
+.sidebar-footer {
+  margin-top: auto; font-size: 12px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 6px; padding: 0 8px;
+}
+.dot-live {
+  width: 7px; height: 7px; border-radius: 50%; background: #6fbf73;
+  box-shadow: 0 0 6px #6fbf7399; display: inline-block;
+}
+
+.main { padding: 40px 48px; max-width: 1100px; }
+
+.view { display: none; }
+.view.is-active { display: block; }
+
+.view-header { margin-bottom: 28px; }
+.view-header h1 {
+  font-family: var(--font-display); font-weight: 800; font-size: 32px;
+  margin: 0 0 6px 0; letter-spacing: 0.01em;
+}
+.view-header p { color: var(--text-muted); margin: 0; font-size: 14px; }
+
+/* ---- Panel / form ---- */
+.panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 24px; margin-bottom: 24px;
+}
+
+.field { margin-bottom: 18px; }
+.field label {
+  display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-muted); margin-bottom: 6px; font-weight: 600;
+}
+.field input[type="text"], .field input[type="date"] {
+  width: 100%; background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--font-mono); font-size: 14px;
+  padding: 10px 12px; border-radius: var(--radius);
+}
+.field input:focus { outline: 2px solid var(--energia); outline-offset: 1px; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.category-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.tab {
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--text-muted);
+  font-family: var(--font-body); font-size: 13px; padding: 6px 14px; border-radius: 999px; cursor: pointer;
+}
+.tab.is-active { background: var(--energia-dim); border-color: var(--energia); color: var(--energia); }
+
+.sensor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.sensor-card {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 12px; cursor: pointer; font-size: 13px;
+}
+.sensor-card.is-checked { border-color: var(--energia); background: var(--energia-dim); }
+.sensor-card input { accent-color: var(--energia); }
+.sensor-card .name { flex: 1; }
+.sensor-card .unit { color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; }
+
+.btn-primary {
+  background: var(--energia); color: #1a1206; border: none;
+  font-family: var(--font-body); font-weight: 600; font-size: 14px;
+  padding: 12px 22px; border-radius: var(--radius); cursor: pointer;
+}
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-secondary {
+  background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+  font-family: var(--font-body); font-size: 13px; padding: 8px 14px; border-radius: var(--radius); cursor: pointer;
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--text-muted); }
+
+.muted { color: var(--text-muted); font-size: 13px; }
+
+/* ---- Resultado del informe: tarjetas tipo "contador" ---- */
+.report-result { margin-top: 8px; }
+.report-title-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+.report-title { font-family: var(--font-display); font-weight: 800; font-size: 22px; margin-bottom: 4px; }
+.report-range { color: var(--text-muted); font-size: 13px; font-family: var(--font-mono); }
+
+.sensor-report-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px; margin-bottom: 16px;
+}
+.sensor-report-card .card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+.sensor-report-card .card-head h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.card-footer { margin-top: 12px; display: flex; justify-content: flex-end; }
+.csv-link { text-decoration: none; }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-family: var(--font-mono); }
+.badge.energia { background: var(--energia-dim); color: var(--energia); }
+.badge.clima { background: var(--clima-dim); color: var(--clima); }
+.badge.infraestructura { background: var(--infra-dim); color: var(--infra); }
+
+.odometer-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.odometer {
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px;
+  background-image: repeating-linear-gradient(90deg, transparent, transparent 9px, #ffffff05 9px, #ffffff05 10px);
+}
+.odometer .val { font-family: var(--font-mono); font-size: 22px; font-weight: 600; }
+.odometer .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+.chart-wrap { height: 220px; margin-top: 8px; }
+
+/* ---- Listado de informes guardados ---- */
+.report-list { display: flex; flex-direction: column; gap: 10px; }
+.report-list-item {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+}
+.report-list-item:hover { border-color: var(--energia); }
+.report-list-item .name { font-weight: 600; }
+.report-list-item .meta { color: var(--text-muted); font-size: 12px; font-family: var(--font-mono); }
+
+/* ---- Login ---- */
+.login-body {
+  display: flex; align-items: center; justify-content: center; min-height: 100vh;
+  background: var(--bg);
+}
+.login-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 36px 32px; width: 100%; max-width: 340px;
+}
+.login-brand { margin-bottom: 24px; justify-content: center; }
+.login-btn { width: 100%; margin-top: 6px; }
+.login-error {
+  color: var(--danger); font-size: 13px; background: #d1656522; border: 1px solid #d1656555;
+  border-radius: var(--radius); padding: 8px 10px; margin: 4px 0 14px 0;
+}
+.logout-btn { width: 100%; margin-top: 10px; }
+table.sensor-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+table.sensor-table th {
+  text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-muted); padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+table.sensor-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+table.sensor-table tr:last-child td { border-bottom: none; }
+table.sensor-table td.entity { font-family: var(--font-mono); color: var(--text-muted); font-size: 12px; }
