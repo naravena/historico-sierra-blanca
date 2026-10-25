@@ -8,9 +8,9 @@ const tarifa = require("./config/tarifa");
 const viviendaConfig = require("./config/vivienda");
 
 // Infraestructura (implementaciones concretas)
-const PostgresSensorRepository = require("./infrastructure/PostgresSensorRepository");
-const PostgresReadingRepository = require("./infrastructure/PostgresReadingRepository");
-const PostgresReportRepository = require("./infrastructure/PostgresReportRepository");
+const TursoSensorRepository = require("./infrastructure/TursoSensorRepository");
+const TursoReadingRepository = require("./infrastructure/TursoReadingRepository");
+const TursoReportRepository = require("./infrastructure/TursoReportRepository");
 
 // Servicios (lógica de negocio, dependen solo de interfaces)
 const SensorService = require("./services/SensorService");
@@ -32,9 +32,9 @@ const crearAuthMiddleware = require("./middleware/authMiddleware");
 const crearRouter = require("./routes");
 
 // --- Composition root: aquí, y solo aquí, se eligen las implementaciones concretas ---
-const sensorRepository = new PostgresSensorRepository(pool);
-const readingRepository = new PostgresReadingRepository(pool);
-const reportRepository = new PostgresReportRepository(pool);
+const sensorRepository = new TursoSensorRepository(pool);
+const readingRepository = new TursoReadingRepository(pool);
+const reportRepository = new TursoReportRepository(pool);
 
 const sensorService = new SensorService(sensorRepository);
 const statsService = new StatsService(sensorRepository, readingRepository);

@@ -1,11 +1,11 @@
 # Informe de coste eléctrico (añadido a la Fase 5)
 
-Combina el consumo real registrado en Supabase (`sensor.medidor_kwh_potencia_acumulada`) con tu tarifa eléctrica para estimar cuánto deberías pagar — y compararlo con tu factura real.
+Combina el consumo real registrado en Turso (`sensor.medidor_kwh_potencia_acumulada`) con tu tarifa eléctrica para estimar cuánto deberías pagar — y compararlo con tu factura real.
 
 ## Arquitectura (mismo patrón que el resto del proyecto)
 
 - **`config/tarifa.js`** — los precios de tu tarifa (2.0TD, Repsol), en un fichero aparte para poder actualizarlos cuando cambien sin tocar nada más.
-- **`CostCalculator`** — aplica la fórmula pura (kWh + días → desglose en €). No sabe nada de Supabase ni de HTTP.
+- **`CostCalculator`** — aplica la fórmula pura (kWh + días → desglose en €). No sabe nada de Turso ni de HTTP.
 - **`CostService`** — compone `StatsService` (consumo real) + `CostCalculator` (fórmula), igual que `ReportService` compone piezas existentes.
 - **`CostController`** + ruta `GET /api/cost-report?desde=&hasta=&importeReal=` (este último parámetro es opcional, para comparar contra tu factura real).
 
@@ -15,7 +15,7 @@ La fórmula se contrastó línea a línea contra tu factura real de Repsol (28/0
 
 ## Cuándo actualizar `tarifa.js`
 
-Cada vez que te llegue una factura con precios distintos (revisión de tarifa, cambio de comercializadora, etc.), actualiza los valores en ese fichero. Si en el futuro cambias de tarifa varias veces y quieres que los informes de periodos antiguos seas precisos con la tarifa que tenías entonces, se podría pasar esta configuración a una tabla en Supabase con fechas de vigencia — no se ha hecho ahora por simplicidad, ya que de momento solo tienes una tarifa activa.
+Cada vez que te llegue una factura con precios distintos (revisión de tarifa, cambio de comercializadora, etc.), actualiza los valores en ese fichero. Si en el futuro cambias de tarifa varias veces y quieres que los informes de periodos antiguos seas precisos con la tarifa que tenías entonces, se podría pasar esta configuración a una tabla en Turso con fechas de vigencia — no se ha hecho ahora por simplicidad, ya que de momento solo tienes una tarifa activa.
 
 ## Uso en el portal
 

@@ -7,6 +7,8 @@ const errorBox = document.getElementById("login-error");
 // Si ya hay sesión válida, no tiene sentido ver el login
 fetch("/api/auth/me", { credentials: "include" }).then((r) => {
   if (r.ok) window.location.href = "/index.html";
+}).catch(() => {
+  // El error se mostrará al intentar iniciar sesión.
 });
 
 form.addEventListener("submit", async (e) => {
@@ -27,17 +29,31 @@ form.addEventListener("submit", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
-    const data = await res.json();
+
+    const body = await res.text();
+    let data = {};
+    try {
+      data = body ? JSON.parse(body) : {};
+    } catch {
+      // Vercel puede devolver una página de error HTML si la función no arranca.
+    }
 
     if (!res.ok) {
-      errorBox.textContent = data.error || "No se pudo iniciar sesión";
+      errorBox.textContent = data.error ||
+        `El servidor respondió con HTTP ${res.status}. Revisa las variables de entorno y los logs de Vercel.`;
+      errorBox.hidden = false;
+      return;
+    }
+
+    if (!body || typeof data !== "object") {
+      errorBox.textContent = "El servidor devolvió una respuesta no válida. Revisa los logs de Vercel.";
       errorBox.hidden = false;
       return;
     }
 
     window.location.href = "/index.html";
   } catch (_err) {
-    errorBox.textContent = "No se pudo conectar con el servidor";
+    errorBox.textContent = "No se pudo contactar con la API. Comprueba el despliegue de Vercel y la ruta /api/auth/login.";
     errorBox.hidden = false;
   } finally {
     boton.disabled = false;
