@@ -1,103 +1,80 @@
-# Despliegue: GitHub + Vercel + Login
+# Despliegue: GitHub + Vercel + Turso + Login
 
-## 0. Seguridad — antes de nada
+## 1. Seguridad
 
-Este proyecto ahora requiere usuario y contraseña. Nunca subas tu `.env` a GitHub (ya está en `.gitignore`, pero comprueba que no lo has forzado con `git add -f` en algún momento). Los secretos (contraseña, claves) viven **solo** en variables de entorno, nunca en el código.
+No subas `.env` a GitHub. Los tokens y secretos solo deben estar en variables de entorno. Si un token de Turso se compartió públicamente, revócalo y genera uno nuevo.
 
----
+## 2. Preparar Turso
 
-## 1. Desarrollo local
+1. Crea o selecciona la base de datos en Turso.
+2. Obtén la URL (`libsql://...`) y genera un token de autenticación.
+3. Ejecuta `turso/01-schema.sql` en la consola SQL de Turso.
+4. Ejecuta `turso/02-seed-sensores.sql` únicamente si quieres insertar el catálogo inicial de Sierra Blanca y aún no tienes el catálogo correcto.
+
+El esquema no borra ni reemplaza las lecturas existentes. El backend espera que `readings` tenga `entity_id`, `recorded_at` y `value`; las fechas deben estar guardadas como texto ISO comparable.
+
+## 3. Desarrollo local
 
 ```bash
 npm install
 cp .env.example .env
 ```
 
-Genera el hash de tu contraseña (la contraseña en texto plano no se guarda en ningún sitio, solo se usa para calcular el hash):
+Configura en `.env`:
+- `TURSO_DATABASE_URL`: URL de la base Turso.
+- `TURSO_AUTH_TOKEN`: token de Turso.
+- `ADMIN_USERNAME`: usuario del portal.
+- `ADMIN_PASSWORD_HASH`: hash de contraseña.
+- `JWT_SECRET`: secreto aleatorio largo.
+- `MAIN_CONSUMPTION_ENTITY_ID` y `MAIN_CONSUMPTION_UNIT`: entidad y unidad reales.
+
+Genera el hash de contraseña:
 
 ```bash
-npm run generar-hash "TuContraseñaSegura123!"
+npm run generar-hash -- "TuContraseñaSegura123!"
 ```
 
-Copia el resultado (`ADMIN_PASSWORD_HASH=...`) a tu `.env`. Rellena también:
-- `ADMIN_USERNAME` — el usuario que quieras
-- `JWT_SECRET` — genera uno aleatorio: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-- `SUPABASE_DB_URL` — tu cadena de conexión (Session pooler, como ya tenías)
-
-Copia el frontend dentro de `backend/public` (para que todo se sirva desde el mismo origen, sin líos de CORS):
+Para servir el frontend desde Express, copia los archivos estáticos a `backend/public` y ejecuta:
 
 ```bash
 cp -r frontend/* backend/public/
-```
-
-Arranca:
-
-```bash
 npm run dev
 ```
 
-Abre `http://localhost:3000` — te debería redirigir a `/login.html` si no has iniciado sesión.
+Abre `http://localhost:3000`.
 
----
+## 4. Desplegar en Vercel
 
-## 2. Subir a GitHub
+1. Importa el repositorio en Vercel y selecciona Framework Preset `Other`.
+2. Configura las variables en los entornos que vayas a utilizar:
 
-```bash
-git init
-git add .
-git commit -m "Portal de informes con autenticación"
-```
+| Variable | Valor |
+|---|---|
+| `TURSO_DATABASE_URL` | URL `libsql://...` de Turso |
+| `TURSO_AUTH_TOKEN` | Token secreto de Turso |
+| `ADMIN_USERNAME` | Usuario del portal |
+| `ADMIN_PASSWORD_HASH` | Hash generado con el script |
+| `JWT_SECRET` | Secreto aleatorio largo |
+| `NODE_ENV` | `production` |
+| `MAIN_CONSUMPTION_ENTITY_ID` | ID real del sensor de consumo total |
+| `MAIN_CONSUMPTION_UNIT` | `Wh` o `kWh`, según la entidad |
 
-Crea un repositorio nuevo en GitHub (público o privado, como prefieras — pero recuerda: **nunca** con el `.env` dentro) y:
+3. Despliega. `api/index.js` expone el backend y `vercel.json` enruta `/api/*` hacia él.
 
-```bash
-git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
-git branch -M main
-git push -u origin main
-```
+## 5. Comprobaciones después del despliegue
 
----
+- `/api/health` responde `{"status":"ok"}`.
+- El login funciona y se puede cerrar sesión.
+- El catálogo muestra las entidades correctas.
+- Un rango de fechas conocido devuelve lecturas.
+- Los informes se pueden crear, listar, abrir y eliminar.
+- El cálculo de coste utiliza el sensor y la unidad configurados.
 
-## 3. Desplegar en Vercel
+## 6. Checklist
 
-1. Entra en [vercel.com](https://vercel.com) → **Add New → Project** → importa tu repositorio de GitHub.
-2. Framework Preset: **Other** (Vercel detectará `vercel.json` automáticamente).
-3. **Antes de darle a Deploy**, ve a la sección **Environment Variables** y añade:
-
-   | Variable | Valor |
-   |---|---|
-   | `SUPABASE_DB_URL` | tu cadena de conexión (ver nota abajo sobre la integración) |
-   | `ADMIN_USERNAME` | tu usuario |
-   | `ADMIN_PASSWORD_HASH` | el hash que generaste en el paso 1 |
-   | `JWT_SECRET` | el valor aleatorio que generaste |
-   | `NODE_ENV` | `production` |
-
-4. **Deploy**.
-
-### Sobre la integración Vercel ↔ Supabase que mencionas
-
-Si conectas la integración oficial (Vercel → Storage/Integrations → Supabase), Vercel puede rellenarte automáticamente variables como `POSTGRES_URL` a partir de tu proyecto de Supabase. Eso sí, esas variables suelen usar el nombre `POSTGRES_URL` (u otro), no `SUPABASE_DB_URL` — dos opciones:
-- Renombra/copia esa variable a `SUPABASE_DB_URL` en la configuración del proyecto, o
-- Cambia `backend/src/config/db.js` para leer `process.env.POSTGRES_URL || process.env.SUPABASE_DB_URL` (dímelo si quieres que lo haga así directamente).
-
-Para el volumen de tráfico de este proyecto (una sola persona), la integración es cómoda pero no imprescindible — la cadena manual del Session Pooler que ya tienes funciona igual de bien.
-
----
-
-## 4. Después del primer despliegue
-
-- Tu portal estará en `https://tu-proyecto.vercel.app`, protegido por login.
-- Cada `git push` a `main` vuelve a desplegar automáticamente.
-- Si algún día cambias la contraseña: genera un hash nuevo (`npm run generar-hash`) y actualiza `ADMIN_PASSWORD_HASH` en Vercel (Project Settings → Environment Variables) — no hace falta tocar código ni volver a desplegar manualmente, Vercel lo aplica en el siguiente despliegue o puedes forzar un redeploy.
-
----
-
-## 5. Checklist de cierre
-
-- [ ] `.env` NO está en el repositorio (verificado con `git status` / `.gitignore`)
-- [ ] Login funciona en local (`npm run dev`)
-- [ ] Repo subido a GitHub
-- [ ] Variables de entorno configuradas en Vercel (las 5 de la tabla)
-- [ ] Despliegue en Vercel accesible, redirige a `/login.html` si no hay sesión
-- [ ] Login funciona en producción y accedes al portal
-- [ ] Cerrar sesión funciona y vuelve a pedir login
+- [ ] `.env` no está en el repositorio.
+- [ ] `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN` están configurados.
+- [ ] El esquema se ejecutó sin borrar `readings`.
+- [ ] El catálogo `sensors` corresponde a Sierra Blanca.
+- [ ] Variables de autenticación configuradas en Vercel.
+- [ ] Login, estadísticas, informes y coste comprobados en producción.
